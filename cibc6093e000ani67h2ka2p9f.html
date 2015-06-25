@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="Simplified Chinese">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Yilin&#39;s Blog">
+    <title>在OpenWRT上配置国内外分流的PPTP VPN - Yilin&#39;s Blog</title>
+    <meta name="author" content="Yilin Chen">
+    <meta name="description" content="Yilin&#39;s Blog">
+    <link rel="icon" href="assets/images/null">
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="assets/css/style.min.css" type="text/css">
+    <!--STYLES END-->
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="1">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="http://yoursite.com">Yilin&#39;s Blog</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="http://www.gravatar.com/avatar/534ae79252e9296310ab36162c5777f6?s=90"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="1">
+    
+    <div class="sidebar-profile">
+        <a href="/#about">
+            
+            <img class="sidebar-profile-picture" src="http://www.gravatar.com/avatar/534ae79252e9296310ab36162c5777f6?s=90"/>
+            
+        </a>
+        <span class="sidebar-profile-name">Yilin Chen</span>
+    </div>
+    
+    
+    <ul class="sidebar-buttons">
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="index.html">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="/all-categories">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="/all-tags">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="/all-archives">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archives</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link st-search-show-outputs" href="/#search">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="/#about">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About me</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <ul class="sidebar-buttons">
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="https://github.com/wormful" target="_blank">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="mailto:wormful@gmail.com" target="_blank">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+</nav>
+            <div id="main" data-behavior="1">
+                
+<article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+        <div class="post-header main-content-wrap">
+    
+        <h1 class="post-title" itemprop="headline">在OpenWRT上配置国内外分流的PPTP VPN</h1>
+    
+    <div class="post-meta">
+    <time  itemprop="datePublished" content="Tue Feb 10 2015 21:29:10 GMT+0800">
+        Feb 10, 2015
+    </time>
+    
+</div>
+</div>
+    
+    <div class="post-content markdown main-content-wrap" itemprop="articleBody">
+        <p>路由器环境：<br>Asus RT-N16，OpenWRT BarrierBreaker 14.07 r44331。</p>
+<h3 id="配置PPTP接口">配置PPTP接口</h3><p>访问路由器的 LuCI 界面，进入「网络」=&gt;「接口」，点击「添加新接口」。</p>
+<p>新接口的协议选择<code>PPtP</code>，名称随意，但在下面的自动重连脚本中要用到，文章给出的脚本中名称为<code>PPTP</code>。</p>
+<p>创建好后，进入接口的配置界面，将服务器地址、用户名、密码填写好。</p>
+<p>高级设置中，取消掉使用默认网关，并按照自己需要配置好<code>lcp-echo</code>和<code>MTU</code>。</p>
+<p>防火墙中，选择<code>wan</code>，然后保存。</p>
+<p>连接PPTP接口，在接口界面看到PPTP有数据包传输，并且保证能够ping通PPTP接口的网关，再进入下一步。</p>
+<p>连接不了的话根据你的PPTP VPN的实际情况尝试修改<code>/etc/ppp/options.pptp</code>。</p>
+<p>我的配置为：</p>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="title">noauth</span></span><br><span class="line">refuse-eap</span><br><span class="line">refuse-chap</span><br><span class="line">refuse-mschap</span><br><span class="line">nobsdcomp</span><br><span class="line">nodeflate</span><br><span class="line">mppe required</span><br><span class="line">mppe stateless</span><br><span class="line">idle <span class="number">0</span></span><br><span class="line">maxfail <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h3 id="添加路由">添加路由</h3><p>这里使用 chnroutes 的路由表。</p>
+<p>首先从 <a href="http://chnroutes-dl.appspot.com/" target="_blank" rel="external">http://chnroutes-dl.appspot.com/</a> 下载<code>linux.zip</code>，并解压。</p>
+<p>修改一下<code>ip-pre-up</code>中的<code>OLDGW</code>的获取方法。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">OLDGW=`ifconfig pppoe-wan | grep -Eo <span class="string">"P-t-P:([0-9.]+)"</span> | cut <span class="operator">-d</span>: <span class="operator">-f</span>2`</span><br></pre></td></tr></table></figure>
+<p>上面代码中的<code>pppoe-wan</code>根据你自己的wan的接口名修改。</p>
+<p>别的可以不用改。</p>
+<p><code>ip-down</code>不用修改。</p>
+<p>把这两个文件上传到路由器上，我放的位置是<code>/etc/pptp/</code>目录中，如果你放的目录不一样，在下面的脚本中请自行修改。</p>
+<h3 id="自动重连">自动重连</h3><p>现在这两个脚本还没有给他们设置运行的时机呢。<code>ip-pre-up</code>在路由器启动时候就要运行，不过在这里把它和自动重连的脚本并到一起也可以。</p>
+<p>脚本名为<code>check</code>，我把它也放在了<code>/etc/pptp/</code>目录中。脚本内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="shebang">#!/bin/bash</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="string">"/bin:/sbin:/usr/sbin:/usr/bin"</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ ! <span class="operator">-e</span> <span class="string">"/tmp/vpn_oldgw"</span> ]; <span class="keyword">then</span></span><br><span class="line">	sh /etc/pptp/ip-pre-up</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">OLDGW=`cat /tmp/vpn_oldgw`</span><br><span class="line">NEWGW=`ifconfig pppoe-wan | grep -Eo <span class="string">"P-t-P:([0-9.]+)"</span> | cut <span class="operator">-d</span>: <span class="operator">-f</span>2`</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="variable">$OLDGW</span> != <span class="variable">$NEWGW</span> ]; <span class="keyword">then</span></span><br><span class="line">	sh /etc/pptp/ip-down</span><br><span class="line">	sh /etc/pptp/ip-pre-up</span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ <span class="operator">-e</span> <span class="string">"/tmp/vpn_reconnect.lock"</span> ]; <span class="keyword">then</span></span><br><span class="line">	<span class="built_in">exit</span> <span class="number">0</span></span><br><span class="line"><span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">VPN=`ifconfig | grep pptp-PPTP`</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> [ -z <span class="string">"<span class="variable">$VPN</span>"</span> ]; <span class="keyword">then</span></span><br><span class="line">	touch /tmp/vpn_reconnect.lock</span><br><span class="line">	ifdown PPTP</span><br><span class="line">	route del default</span><br><span class="line">	route add default gw <span class="variable">$NEWGW</span></span><br><span class="line">	sleep <span class="number">3</span></span><br><span class="line">	ifup PPTP</span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> <span class="number">1</span> <span class="number">2</span> <span class="number">3</span> <span class="number">4</span> <span class="number">5</span> <span class="number">6</span></span><br><span class="line">	<span class="keyword">do</span></span><br><span class="line">		VPN=`ifconfig | grep pptp-PPTP`</span><br><span class="line">		<span class="keyword">if</span> [ -z <span class="string">"<span class="variable">$VPN</span>"</span> ]; <span class="keyword">then</span></span><br><span class="line">			sleep <span class="number">10</span></span><br><span class="line">		<span class="keyword">else</span></span><br><span class="line">			route del default</span><br><span class="line">			route add default gw <span class="number">10.10</span>.<span class="number">0.1</span></span><br><span class="line">			<span class="built_in">break</span></span><br><span class="line">		<span class="keyword">fi</span></span><br><span class="line">	<span class="keyword">done</span></span><br><span class="line">	rm /tmp/vpn_reconnect.lock</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">	DEFAULT=`ip route | awk <span class="string">'/default/ &#123; print $3 &#125;'</span>`</span><br><span class="line">	<span class="keyword">if</span> [ <span class="variable">$DEFAULT</span> != <span class="string">"10.10.0.1"</span> ]; <span class="keyword">then</span></span><br><span class="line">		route del default</span><br><span class="line">		route add default gw <span class="number">10.10</span>.<span class="number">0.1</span></span><br><span class="line">	<span class="keyword">fi</span></span><br><span class="line"><span class="keyword">fi</span></span><br></pre></td></tr></table></figure>
+<p>这段脚本会在VPN断线的时候自动切换路由到无VPN状态，并且尝试重新连接VPN。</p>
+<p>另外，注意将<code>/etc/pptp/</code>目录中的脚本都设置为可执行。</p>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ chmod <span class="literal">a</span>+x /etc/pptp/*</span><br></pre></td></tr></table></figure>
+<p>最后在LuCI的「系统」=&gt;「计划任务」中添加一条crontab任务，让自动重连脚本周期性运行。</p>
+<figure class="highlight gherkin"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">*</span>/2 <span class="keyword">*</span> <span class="keyword">*</span> <span class="keyword">*</span> <span class="keyword">*</span> sh /etc/pptp/check</span><br></pre></td></tr></table></figure>
+<p>这样就大功告成了。重新启动路由器，过个几分钟后看看是不是一切顺利了。</p>
+<p>附路由器上安装的软件包列表：<br><figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">base-files</span> <span class="tag">-</span> 157<span class="tag">-r44331</span></span><br><span class="line"><span class="tag">busybox</span> <span class="tag">-</span> 1<span class="class">.22</span><span class="class">.1-5</span></span><br><span class="line"><span class="tag">curl</span> <span class="tag">-</span> 7<span class="class">.40</span><span class="class">.0-3</span></span><br><span class="line"><span class="tag">dnsmasq</span> <span class="tag">-</span> 2<span class="class">.72-4</span></span><br><span class="line"><span class="tag">dropbear</span> <span class="tag">-</span> 2014<span class="class">.65-2</span></span><br><span class="line"><span class="tag">firewall</span> <span class="tag">-</span> 2015<span class="tag">-01-08</span></span><br><span class="line"><span class="tag">fstools</span> <span class="tag">-</span> 2015<span class="tag">-01-28-6a448a100c7ce8b8b85f262ba1258e54363da9cc</span></span><br><span class="line"><span class="tag">hostapd-common</span> <span class="tag">-</span> 2014<span class="tag">-10-25-1</span></span><br><span class="line"><span class="tag">ip</span> <span class="tag">-</span> 3<span class="class">.18</span><span class="class">.0-1</span></span><br><span class="line"><span class="tag">ip6tables</span> <span class="tag">-</span> 1<span class="class">.4</span><span class="class">.21-1</span></span><br><span class="line"><span class="tag">iperf</span> <span class="tag">-</span> 2<span class="class">.0</span><span class="class">.5-1</span></span><br><span class="line"><span class="tag">ipset</span> <span class="tag">-</span> 6<span class="class">.20</span><span class="class">.1-1</span></span><br><span class="line"><span class="tag">iptables</span> <span class="tag">-</span> 1<span class="class">.4</span><span class="class">.21-1</span></span><br><span class="line"><span class="tag">iptables-mod-ipopt</span> <span class="tag">-</span> 1<span class="class">.4</span><span class="class">.21-1</span></span><br><span class="line"><span class="tag">iw</span> <span class="tag">-</span> 3<span class="class">.15-1</span></span><br><span class="line"><span class="tag">iwinfo</span> <span class="tag">-</span> 2015<span class="tag">-01-04-c9fd399316003040825dfbd9700488b621bd990e</span></span><br><span class="line"><span class="tag">jshn</span> <span class="tag">-</span> 2015<span class="tag">-01-28-827ad8337e88ec9e0bf73a8af1d6cf8555e8ef3d</span></span><br><span class="line"><span class="tag">jsonfilter</span> <span class="tag">-</span> 2014<span class="tag">-06-19-cdc760c58077f44fc40adbbe41e1556a67c1b9a9</span></span><br><span class="line"><span class="tag">kernel</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1-524aba99ddb094be13ca2a43fca5dbfb</span></span><br><span class="line"><span class="tag">kmod-b43</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32</span>+2014<span class="tag">-11-04-1</span></span><br><span class="line"><span class="tag">kmod-b43legacy</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32</span>+2014<span class="tag">-11-04-1</span></span><br><span class="line"><span class="tag">kmod-b44</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-bgmac</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-cfg80211</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32</span>+2014<span class="tag">-11-04-1</span></span><br><span class="line"><span class="tag">kmod-crypto-aead</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-crypto-aes</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-crypto-arc4</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-crypto-core</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-crypto-ecb</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-crypto-hash</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-crypto-manager</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-crypto-pcompress</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-crypto-sha1</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-gpio-button-hotplug</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-gre</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-hwmon-core</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ip6tables</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ipt-conntrack</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ipt-core</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ipt-ipopt</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ipt-ipset</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32</span>+6<span class="class">.20</span><span class="class">.1-1</span></span><br><span class="line"><span class="tag">kmod-ipt-nat</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-iptunnel</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ipv6</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-leds-gpio</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ledtrig-default-on</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ledtrig-netdev</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ledtrig-timer</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-lib-crc-ccitt</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-libphy</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-mac80211</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32</span>+2014<span class="tag">-11-04-1</span></span><br><span class="line"><span class="tag">kmod-mii</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-mppe</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-nf-conntrack</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-nf-conntrack6</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-nf-ipt</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-nf-ipt6</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-nf-nat</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-nf-nathelper</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-nfnetlink</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ppp</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-pppoe</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-pppox</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-pps</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-pptp</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-ptp</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-slhc</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">kmod-tg3</span> <span class="tag">-</span> 3<span class="class">.14</span><span class="class">.32-1</span></span><br><span class="line"><span class="tag">libblobmsg-json</span> <span class="tag">-</span> 2015<span class="tag">-01-28-827ad8337e88ec9e0bf73a8af1d6cf8555e8ef3d</span></span><br><span class="line"><span class="tag">libc</span> <span class="tag">-</span> 0<span class="class">.9</span><span class="class">.33</span><span class="class">.2-1</span></span><br><span class="line"><span class="tag">libcurl</span> <span class="tag">-</span> 7<span class="class">.40</span><span class="class">.0-3</span></span><br><span class="line"><span class="tag">libgcc</span> <span class="tag">-</span> 4<span class="class">.8-linaro-1</span></span><br><span class="line"><span class="tag">libip4tc</span> <span class="tag">-</span> 1<span class="class">.4</span><span class="class">.21-1</span></span><br><span class="line"><span class="tag">libip6tc</span> <span class="tag">-</span> 1<span class="class">.4</span><span class="class">.21-1</span></span><br><span class="line"><span class="tag">libiwinfo</span> <span class="tag">-</span> 2015<span class="tag">-01-04-c9fd399316003040825dfbd9700488b621bd990e</span></span><br><span class="line"><span class="tag">libiwinfo-lua</span> <span class="tag">-</span> 2015<span class="tag">-01-04-c9fd399316003040825dfbd9700488b621bd990e</span></span><br><span class="line"><span class="tag">libjson-c</span> <span class="tag">-</span> 0<span class="class">.11-2</span></span><br><span class="line"><span class="tag">libjson-script</span> <span class="tag">-</span> 2015<span class="tag">-01-28-827ad8337e88ec9e0bf73a8af1d6cf8555e8ef3d</span></span><br><span class="line"><span class="tag">liblua</span> <span class="tag">-</span> 5<span class="class">.1</span><span class="class">.5-1</span></span><br><span class="line"><span class="tag">libmnl</span> <span class="tag">-</span> 1<span class="class">.0</span><span class="class">.3-2</span></span><br><span class="line"><span class="tag">libnl-tiny</span> <span class="tag">-</span> 0<span class="class">.1-4</span></span><br><span class="line"><span class="tag">libopenssl</span> <span class="tag">-</span> 1<span class="class">.0</span><span class="class">.1l-1</span></span><br><span class="line"><span class="tag">libpolarssl</span> <span class="tag">-</span> 1<span class="class">.3</span><span class="class">.9-2</span></span><br><span class="line"><span class="tag">libpthread</span> <span class="tag">-</span> 0<span class="class">.9</span><span class="class">.33</span><span class="class">.2-1</span></span><br><span class="line"><span class="tag">librt</span> <span class="tag">-</span> 0<span class="class">.9</span><span class="class">.33</span><span class="class">.2-1</span></span><br><span class="line"><span class="tag">libubox</span> <span class="tag">-</span> 2015<span class="tag">-01-28-827ad8337e88ec9e0bf73a8af1d6cf8555e8ef3d</span></span><br><span class="line"><span class="tag">libubus</span> <span class="tag">-</span> 2015<span class="tag">-01-22-2d660c519d2fcff95248da9f4fd9b37d61f9eb09</span></span><br><span class="line"><span class="tag">libubus-lua</span> <span class="tag">-</span> 2015<span class="tag">-01-22-2d660c519d2fcff95248da9f4fd9b37d61f9eb09</span></span><br><span class="line"><span class="tag">libuci</span> <span class="tag">-</span> 2014<span class="tag">-04-11</span><span class="class">.1-1</span></span><br><span class="line"><span class="tag">libuci-lua</span> <span class="tag">-</span> 2014<span class="tag">-04-11</span><span class="class">.1-1</span></span><br><span class="line"><span class="tag">libxtables</span> <span class="tag">-</span> 1<span class="class">.4</span><span class="class">.21-1</span></span><br><span class="line"><span class="tag">lua</span> <span class="tag">-</span> 5<span class="class">.1</span><span class="class">.5-1</span></span><br><span class="line"><span class="tag">luci</span> <span class="tag">-</span> <span class="tag">git-15</span><span class="class">.039</span><span class="class">.68240-76dfdc1-1</span></span><br><span class="line"><span class="tag">luci-app-firewall</span> <span class="tag">-</span> <span class="tag">git-15</span><span class="class">.039</span><span class="class">.68240-76dfdc1-1</span></span><br><span class="line"><span class="tag">luci-base</span> <span class="tag">-</span> <span class="tag">git-15</span><span class="class">.039</span><span class="class">.68240-76dfdc1-1</span></span><br><span class="line"><span class="tag">luci-i18n-base-zh-cn</span> <span class="tag">-</span> <span class="tag">git-15</span><span class="class">.039</span><span class="class">.68240-76dfdc1-1</span></span><br><span class="line"><span class="tag">luci-lib-ip</span> <span class="tag">-</span> <span class="tag">git-15</span><span class="class">.039</span><span class="class">.68240-76dfdc1-1</span></span><br><span class="line"><span class="tag">luci-lib-nixio</span> <span class="tag">-</span> <span class="tag">git-15</span><span class="class">.039</span><span class="class">.68240-76dfdc1-1</span></span><br><span class="line"><span class="tag">luci-mod-admin-full</span> <span class="tag">-</span> <span class="tag">git-15</span><span class="class">.039</span><span class="class">.68240-76dfdc1-1</span></span><br><span class="line"><span class="tag">luci-proto-ppp</span> <span class="tag">-</span> <span class="tag">git-15</span><span class="class">.039</span><span class="class">.68240-76dfdc1-1</span></span><br><span class="line"><span class="tag">luci-theme-bootstrap</span> <span class="tag">-</span> <span class="tag">git-15</span><span class="class">.039</span><span class="class">.68240-76dfdc1-1</span></span><br><span class="line"><span class="tag">mtd</span> <span class="tag">-</span> 20</span><br><span class="line"><span class="tag">netifd</span> <span class="tag">-</span> 2015<span class="tag">-02-09-2dae3867c8730e194c036a7827b0322726adf81a</span></span><br><span class="line"><span class="tag">nvram</span> <span class="tag">-</span> 9</span><br><span class="line"><span class="tag">odhcp6c</span> <span class="tag">-</span> 2014<span class="tag">-12-10-722226c4f1d45c8bf4ac9189523738abcf7d648f</span></span><br><span class="line"><span class="tag">odhcpd</span> <span class="tag">-</span> 2014<span class="tag">-11-06-3b628005e66e90770b2757a4a02c1dee25ccb883</span></span><br><span class="line"><span class="tag">opkg</span> <span class="tag">-</span> 9<span class="tag">c97d5ecd795709c8584e972bfdf3aee3a5b846d-7</span></span><br><span class="line"><span class="tag">ppp</span> <span class="tag">-</span> 2<span class="class">.4</span><span class="class">.7-5</span></span><br><span class="line"><span class="tag">ppp-mod-pppoe</span> <span class="tag">-</span> 2<span class="class">.4</span><span class="class">.7-5</span></span><br><span class="line"><span class="tag">ppp-mod-pptp</span> <span class="tag">-</span> 2<span class="class">.4</span><span class="class">.7-5</span></span><br><span class="line"><span class="tag">procd</span> <span class="tag">-</span> 2015<span class="tag">-01-28-7676df3226da5391c2dfda2ed29a40500e04e15b</span></span><br><span class="line"><span class="tag">resolveip</span> <span class="tag">-</span> 2</span><br><span class="line"><span class="tag">rpcd</span> <span class="tag">-</span> 2014<span class="tag">-10-20-d99e8adc4fbcf9e7a0b36df05ee1bccbedd45a2a</span></span><br><span class="line"><span class="tag">swconfig</span> <span class="tag">-</span> 10</span><br><span class="line"><span class="tag">ubox</span> <span class="tag">-</span> 2014<span class="tag">-10-06-0b274c16a3f9d235735a4b84215071e1e004caa9</span></span><br><span class="line"><span class="tag">ubus</span> <span class="tag">-</span> 2015<span class="tag">-01-22-2d660c519d2fcff95248da9f4fd9b37d61f9eb09</span></span><br><span class="line"><span class="tag">ubusd</span> <span class="tag">-</span> 2015<span class="tag">-01-22-2d660c519d2fcff95248da9f4fd9b37d61f9eb09</span></span><br><span class="line"><span class="tag">uci</span> <span class="tag">-</span> 2014<span class="tag">-04-11</span><span class="class">.1-1</span></span><br><span class="line"><span class="tag">uclibcxx</span> <span class="tag">-</span> 0<span class="class">.2</span><span class="class">.4-1</span></span><br><span class="line"><span class="tag">uhttpd</span> <span class="tag">-</span> 2015<span class="tag">-01-25</span><span class="class">.2-db79faae848e9ca5ed1c5b62cdd9d01650687fff</span></span><br><span class="line"><span class="tag">uhttpd-mod-ubus</span> <span class="tag">-</span> 2015<span class="tag">-01-25</span><span class="class">.2-db79faae848e9ca5ed1c5b62cdd9d01650687fff</span></span><br><span class="line"><span class="tag">wpad-mini</span> <span class="tag">-</span> 2014<span class="tag">-10-25-1</span></span><br><span class="line"><span class="tag">zlib</span> <span class="tag">-</span> 1<span class="class">.2</span><span class="class">.8-1</span></span><br></pre></td></tr></table></figure></p>
+
+        
+            
+        
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="tags/index.html">Network</a> <a class="tag tag--primary tag--small t-link" href="tags/index.html">OpenWRT</a> <a class="tag tag--primary tag--small t-link" href="tags/index.html">Routing</a> <a class="tag tag--primary tag--small t-link" href="tags/index.html">VPN</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="cibc608zv0000ni67f67f4woa.html" data-tooltip="Rails 4.2 + PostgreSQL 9.4 + Ubuntu 14.04 LTS">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://yoursite.com/cibc6093e000ani67h2ka2p9f.html">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/cibc6093e000ani67h2ka2p9f.html">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://yoursite.com/cibc6093e000ani67h2ka2p9f.html">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+    </ul>
+</div>
+
+
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2015 Yilin Chen. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="1">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="cibc608zv0000ni67f67f4woa.html" data-tooltip="Rails 4.2 + PostgreSQL 9.4 + Ubuntu 14.04 LTS">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://yoursite.com/cibc6093e000ani67h2ka2p9f.html">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/cibc6093e000ani67h2ka2p9f.html">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://yoursite.com/cibc6093e000ani67h2ka2p9f.html">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+    </ul>
+</div>
+
+
+                </div>
+            
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="http://www.gravatar.com/avatar/534ae79252e9296310ab36162c5777f6?s=110"/>
+        
+            <h4 id="about-card-name">Yilin Chen</h4>
+        
+            <h5 id="about-card-bio"><p>Pseudo-Nerd</p>
+</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                <p>Student</p>
+
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Wuxi
+            </h5>
+        
+    </div>
+</div>
+        <div id="cover" style="background-image:url('/assets/images/cover.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+<script src="assets/js/script.min.js" type="text/javascript"></script>
+<!--SCRIPTS END-->
+
+
+
+</html>

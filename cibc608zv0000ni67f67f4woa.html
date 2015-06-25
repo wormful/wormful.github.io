@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="Simplified Chinese">
+    
+<head>
+    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8" >
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="Yilin&#39;s Blog">
+    <title>Rails 4.2 + PostgreSQL 9.4 + Ubuntu 14.04 LTS - Yilin&#39;s Blog</title>
+    <meta name="author" content="Yilin Chen">
+    <meta name="description" content="Yilin&#39;s Blog">
+    <link rel="icon" href="assets/images/null">
+    
+    <!--STYLES-->
+    <link rel="stylesheet" href="assets/css/style.min.css" type="text/css">
+    <!--STYLES END-->
+    
+</head>
+
+    <body>
+        <div id="blog">
+            <header id="header" data-behavior="1">
+    <i id="btn-open-sidebar" class="fa fa-lg fa-bars"></i>
+    <h1 class="header-title">
+        <a class="header-title-link" href="http://yoursite.com">Yilin&#39;s Blog</a>
+    </h1>
+    
+        <a class="header-right-picture" href="/#about">
+            <img class="header-picture" src="http://www.gravatar.com/avatar/534ae79252e9296310ab36162c5777f6?s=90"/>
+        </a>
+    
+</header>
+            <nav id="sidebar" data-behavior="1">
+    
+    <div class="sidebar-profile">
+        <a href="/#about">
+            
+            <img class="sidebar-profile-picture" src="http://www.gravatar.com/avatar/534ae79252e9296310ab36162c5777f6?s=90"/>
+            
+        </a>
+        <span class="sidebar-profile-name">Yilin Chen</span>
+    </div>
+    
+    
+    <ul class="sidebar-buttons">
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="index.html">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-home"></i>
+                    <span class="sidebar-button-desc">Home</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="/all-categories">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-bookmark"></i>
+                    <span class="sidebar-button-desc">Categories</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="/all-tags">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-tags"></i>
+                    <span class="sidebar-button-desc">Tags</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="/all-archives">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-archive"></i>
+                    <span class="sidebar-button-desc">Archives</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link st-search-show-outputs" href="/#search">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-search"></i>
+                    <span class="sidebar-button-desc">Search</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="/#about">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-question"></i>
+                    <span class="sidebar-button-desc">About me</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+    <ul class="sidebar-buttons">
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="https://github.com/wormful" target="_blank">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-github"></i>
+                    <span class="sidebar-button-desc">GitHub</span>
+                </a>
+        </li>
+        
+        <li class="sidebar-button">
+            
+                <a  class="sidebar-button-link " href="mailto:wormful@gmail.com" target="_blank">
+            
+                    <i class="sidebar-button-icon fa fa-lg fa-envelope-o"></i>
+                    <span class="sidebar-button-desc">Mail</span>
+                </a>
+        </li>
+        
+    </ul>
+    
+</nav>
+            <div id="main" data-behavior="1">
+                
+<article class="post" itemscope itemType="http://schema.org/BlogPosting">
+    
+        <div class="post-header main-content-wrap">
+    
+        <h1 class="post-title" itemprop="headline">Rails 4.2 + PostgreSQL 9.4 + Ubuntu 14.04 LTS</h1>
+    
+    <div class="post-meta">
+    <time  itemprop="datePublished" content="Thu Jan 01 2015 21:21:28 GMT+0800">
+        Jan 01, 2015
+    </time>
+    
+</div>
+</div>
+    
+    <div class="post-content markdown main-content-wrap" itemprop="articleBody">
+        <p>今天新建了一个 Ubuntu 14.04 LTS 的环境安装 Rails 4.2 + PostgreSQL 的时候，Rails 总是连接不上 PostgreSQL。问题挺奇怪，花了好久才弄解决，就写一下存个档吧……</p>
+<h3 id="安装_Ruby_2-2">安装 Ruby 2.2</h3><p>新版的 Ruby on Rails 建议使用 Ruby 2.2 的版本，Ubuntu 要么不会自带 Ruby 要么自带的 Ruby 版本过低，所以还是需要自己安装 Ruby。这里使用 rbenv 来安装 Ruby。</p>
+<p>首先先更新一下软件源，安装一批依赖。</p>
+<figure class="highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-<span class="built_in">get</span> <span class="keyword">update</span></span><br><span class="line">$ sudo apt-<span class="built_in">get</span> install git autoconf bison build-essential libssl-<span class="built_in">dev</span> libyaml-<span class="built_in">dev</span> libreadline6-<span class="built_in">dev</span> zlib1g-<span class="built_in">dev</span> libncurses5-<span class="built_in">dev</span> libffi-<span class="built_in">dev</span></span><br></pre></td></tr></table></figure>
+<p>然后先安装 rbenv。</p>
+<figure class="highlight julia"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ git clone https://github.com/sstephenson/rbenv.git ~/.rbenv</span><br><span class="line">$ echo '<span class="keyword">export</span> PATH=<span class="string">"<span class="variable">$HOME</span>/.rbenv/bin:<span class="variable">$PATH</span>"</span>' &gt;&gt; ~/.bashrc</span><br><span class="line">$ echo 'eval <span class="string">"<span class="subst">$(rbenv init -)</span>"</span>' &gt;&gt; ~/.bashrc</span><br></pre></td></tr></table></figure>
+<p>重登一下 shell，检查一下 rbenv 命令是否可以运行了。</p>
+<p>rbenv 安装成功后就可以安装 Ruby 了。</p>
+<figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rbenv <span class="keyword">install</span> <span class="number">2.2</span>.<span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>这个操作会下载并编译 Ruby 2.2.0，下载编译需要一段时间，要耐心。</p>
+<p>可以选择把 Ruby 2.2.0 作为默认的 Ruby 使用。</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rbenv <span class="keyword">global</span> <span class="number">2.2</span>.0</span><br></pre></td></tr></table></figure>
+<h3 id="安装_Rails_4-2">安装 Rails 4.2</h3><figure class="highlight cmake"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ gem <span class="keyword">install</span> rails</span><br></pre></td></tr></table></figure>
+<p>这个比较简单，但还是要耐心……</p>
+<h3 id="安装_PostgreSQL_9-4">安装 PostgreSQL 9.4</h3><p>Ubuntu 官方的源更新没那么及时，于是我们添加 PostgreSQL 的官方源。</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ sudo sed -<span class="tag">i</span> <span class="string">'1ideb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main'</span> /etc/apt/sources<span class="class">.list</span><span class="class">.d</span>/pgdg<span class="class">.list</span></span><br><span class="line">$ wget --quiet -O - \</span><br><span class="line">  https:<span class="comment">//www.postgresql.org/media/keys/ACCC4CF8.asc | \</span></span><br><span class="line">  sudo apt-key add -</span><br><span class="line">$ sudo apt-get update</span><br></pre></td></tr></table></figure>
+<p>然后就可以安装了。</p>
+<figure class="highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo apt-<span class="built_in">get</span> install postgresql-<span class="number">9.4</span> postgresql-contrib-<span class="number">9.4</span> libpq-<span class="built_in">dev</span></span><br></pre></td></tr></table></figure>
+<h3 id="创建并配置_Rails_应用">创建并配置 Rails 应用</h3><figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ rails <span class="built_in">new</span> myapp <span class="comment">--database=postgresql</span></span><br></pre></td></tr></table></figure>
+<p>这样就可以创建以 PostgreSQL 为数据库的 Rails 应用了。</p>
+<p>稍微修改一下<code>database.yml</code></p>
+<figure class="highlight http"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">default</span>: <span class="string">&amp;default</span></span><br><span class="line">  <span class="attribute">adapter</span>: <span class="string">postgresql</span></span><br><span class="line">  <span class="attribute">encoding</span>: <span class="string">unicode</span></span><br><span class="line">  <span class="attribute">pool</span>: <span class="string">5</span></span><br><span class="line"></span><br><span class="line"><span class="haskell"><span class="title">development</span>:</span><br><span class="line">  &lt;&lt;: *<span class="default"><span class="keyword">default</span></span></span><br><span class="line">  database: myapp__development</span><br><span class="line">  username: postgres</span><br><span class="line"></span><br><span class="line"><span class="title">test</span>:</span><br><span class="line">  &lt;&lt;: *<span class="default"><span class="keyword">default</span></span></span><br><span class="line">  database: myapp_test</span><br><span class="line">  username: postgres</span></span><br></pre></td></tr></table></figure>
+<p>但我遇到了一个奇怪的问题，Rails 始终无法与 PostgreSQL 连接，总是出现<code>PG::ConnectionBad: FATAL:  Peer authentication failed for user &quot;postgres&quot;</code>的错误。</p>
+<p>解决办法就是修改 PostgreSQL 的 <code>pg_hba.conf</code> 文件。</p>
+<p><code>pg_hba.conf</code>文件默认在的位置为<code>/etc/postgresql/9.4/main/pg_hba.conf</code>。</p>
+<p>找到这个位置：</p>
+<figure class="highlight asciidoc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="code">......</span><br><span class="line"># Database administrative login by Unix domain socket</span><br><span class="line">&lt;b&gt;local   all         postgres                    peer&lt;/b&gt;</span><br><span class="line"></span><br><span class="line"># TYPE  DATABASE    USER      ADDRESS           METHOD</span><br><span class="line"></span><br><span class="line"># "local" is for Unix domain socket connections only</span><br><span class="line">local   all         all                         peer</span><br><span class="line">......</span></span><br></pre></td></tr></table></figure>
+<p>把加粗的那一行改成</p>
+<figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">local   <span class="literal">all</span>         postgres                    <span class="variable">&lt;b&gt;</span>trust<span class="variable">&lt;/b&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后重启 PostgreSQL 服务：</p>
+<figure class="highlight puppet"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo <span class="keyword">service</span> postgresql <span class="literal">restart</span></span><br></pre></td></tr></table></figure>
+<p>然后看看是否可以正常连接数据库了。</p>
+<figure class="highlight elixir"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ </span>rake <span class="symbol">db:</span>setup</span><br></pre></td></tr></table></figure>
+        
+            
+        
+    </div>
+    <div class="post-footer main-content-wrap">
+        
+            <div class="post-footer-tags">
+                <span class="text-color-light text-small">TAGGED IN</span><br/>
+                
+    <a class="tag tag--primary tag--small t-link" href="tags/index.html">Authentication</a> <a class="tag tag--primary tag--small t-link" href="tags/index.html">PostgreSQL</a> <a class="tag tag--primary tag--small t-link" href="tags/index.html">Rails</a>
+
+            </div>
+        
+        <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="cibc6093e000ani67h2ka2p9f.html"  data-tooltip="在OpenWRT上配置国内外分流的PPTP VPN">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://yoursite.com/cibc608zv0000ni67f67f4woa.html">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/cibc608zv0000ni67f67f4woa.html">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://yoursite.com/cibc608zv0000ni67f67f4woa.html">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+    </ul>
+</div>
+
+
+        
+    </div>
+</article>
+
+
+
+                <footer id="footer" class="main-content-wrap">
+    <span class="copyrights">
+        Copyrights &copy; 2015 Yilin Chen. All Rights Reserved.
+    </span>
+</footer>
+
+            </div>
+            
+                <div id="bottom-bar" class="post-bottom-bar" data-behavior="1">
+                    <div class="post-actions-wrap">
+    <nav>
+        <ul class="post-actions post-action-nav">
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--default tooltip--top" href="cibc6093e000ani67h2ka2p9f.html"  data-tooltip="在OpenWRT上配置国内外分流的PPTP VPN">
+                
+                    <i class="fa fa-angle-left"></i>
+                    <span class="hide-xs hide-sm text-small icon-ml">PREVIOUS</span>
+                </a>
+            </li>
+            <li class="post-action">
+                
+                    <a class="post-action-btn btn btn--disabled">
+                
+                    <span class="hide-xs hide-sm text-small icon-mr">NEXT</span>
+                    <i class="fa fa-angle-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <ul class="post-actions post-action-share">
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://plus.google.com/share?url=http://yoursite.com/cibc608zv0000ni67f67f4woa.html">
+                <i class="fa fa-google-plus"></i>
+            </a>
+        </li>
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://www.facebook.com/sharer/sharer.php?u=http://yoursite.com/cibc608zv0000ni67f67f4woa.html">
+                <i class="fa fa-facebook-official"></i>
+            </a>
+        </li>
+        <li class="post-action">
+            <a class="post-action-btn btn btn--default" target="new" href="https://twitter.com/intent/tweet?text=http://yoursite.com/cibc608zv0000ni67f67f4woa.html">
+                <i class="fa fa-twitter"></i>
+            </a>
+        </li>
+        
+            <li class="post-action hide-xs">
+                <a class="post-action-btn btn btn--default" href="#disqus_thread">
+                    <i class="fa fa-comment-o"></i>
+                </a>
+            </li>
+        
+    </ul>
+</div>
+
+
+                </div>
+            
+        </div>
+        <div id="about">
+    <div id="about-card">
+        <div id="about-btn-close">
+            <i class="fa fa-remove"></i>
+        </div>
+        
+            <img id="about-card-picture" src="http://www.gravatar.com/avatar/534ae79252e9296310ab36162c5777f6?s=110"/>
+        
+            <h4 id="about-card-name">Yilin Chen</h4>
+        
+            <h5 id="about-card-bio"><p>Pseudo-Nerd</p>
+</h5>
+        
+        
+            <h5 id="about-card-job">
+                <i class="fa fa-briefcase"></i>
+                <br/>
+                <p>Student</p>
+
+            </h5>
+        
+        
+            <h5 id="about-card-location">
+                <i class="fa fa-map-marker"></i>
+                <br/>
+                Wuxi
+            </h5>
+        
+    </div>
+</div>
+        <div id="cover" style="background-image:url('/assets/images/cover.jpg');"></div>
+    </body>
+    <!--SCRIPTS-->
+<script src="assets/js/script.min.js" type="text/javascript"></script>
+<!--SCRIPTS END-->
+
+
+
+</html>
